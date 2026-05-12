@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use unified_config_loader::app_config::{
-    AppConfig, AuthConfig, CorsConfig, FeatureFlagsConfig, HttpConfig, LoggingConfig,
-    MailConfig, RateLimitConfig, TlsConfig,
+    AppConfig, AuthConfig, CorsConfig, FeatureFlagsConfig, HttpConfig, LoggingConfig, MailConfig,
+    RateLimitConfig, TlsConfig,
 };
 use unified_config_loader::prelude::*;
 use unified_config_loader::sources::{DefaultSource, EnvSource, FileFormat, FileSource};
@@ -31,10 +31,22 @@ fn base_defaults() -> ConfigValue {
         (
             "mail".into(),
             ConfigValue::Table(HashMap::from([
-                ("smtp_host".into(), ConfigValue::String("smtp.dev.local".into())),
-                ("smtp_username".into(), ConfigValue::String("dev@test.com".into())),
-                ("smtp_password".into(), ConfigValue::String("devpass".into())),
-                ("from_address".into(), ConfigValue::String("dev@test.com".into())),
+                (
+                    "smtp_host".into(),
+                    ConfigValue::String("smtp.dev.local".into()),
+                ),
+                (
+                    "smtp_username".into(),
+                    ConfigValue::String("dev@test.com".into()),
+                ),
+                (
+                    "smtp_password".into(),
+                    ConfigValue::String("devpass".into()),
+                ),
+                (
+                    "from_address".into(),
+                    ConfigValue::String("dev@test.com".into()),
+                ),
             ])),
         ),
     ]))
@@ -100,12 +112,9 @@ key_path = "/etc/letsencrypt/live/myapp.com/privkey.pem"
 fn test_full_pipeline_all_three_sources() {
     let defaults = DefaultSource::new(base_defaults());
 
-    let file_source = FileSource::with_reader(
-        "config.toml",
-        FileFormat::Toml,
-        true,
-        |_| Ok(sample_toml().to_string()),
-    );
+    let file_source = FileSource::with_reader("config.toml", FileFormat::Toml, true, |_| {
+        Ok(sample_toml().to_string())
+    });
 
     // Env overrides: bump port, switch to debug logging, enable maintenance
     let env_source = EnvSource::new("APP", || {
@@ -117,9 +126,9 @@ fn test_full_pipeline_all_three_sources() {
     });
 
     let config: AppConfig = ConfigLoader::new()
-        .add_source(Box::new(defaults))     // lowest
-        .add_source(Box::new(file_source))  // middle
-        .add_source(Box::new(env_source))   // highest
+        .add_source(Box::new(defaults)) // lowest
+        .add_source(Box::new(file_source)) // middle
+        .add_source(Box::new(env_source)) // highest
         .load()
         .expect("full pipeline load");
 
@@ -167,12 +176,8 @@ fn test_reversed_precedence_file_wins_over_env() {
         ]
     });
 
-    let file_source = FileSource::with_reader(
-        "config.toml",
-        FileFormat::Toml,
-        true,
-        |_| {
-            Ok(r#"
+    let file_source = FileSource::with_reader("config.toml", FileFormat::Toml, true, |_| {
+        Ok(r#"
 [http]
 host = "file-host"
 port = 2222
@@ -186,9 +191,8 @@ smtp_username = "file-user"
 smtp_password = "file-pass"
 from_address = "file@test.com"
 "#
-            .to_string())
-        },
-    );
+        .to_string())
+    });
 
     // Env added FIRST (lower), file SECOND (higher) → file wins
     let config: AppConfig = ConfigLoader::new()
@@ -412,12 +416,9 @@ cors:
   allow_credentials: true
 "#;
 
-    let src = FileSource::with_reader(
-        "config.yaml",
-        FileFormat::Yaml,
-        true,
-        |_| Ok(yaml.to_string()),
-    );
+    let src = FileSource::with_reader("config.yaml", FileFormat::Yaml, true, |_| {
+        Ok(yaml.to_string())
+    });
 
     let config: AppConfig = ConfigLoader::new()
         .add_source(Box::new(src))
@@ -462,12 +463,9 @@ fn test_json_source_full_config() {
   "rate_limit": { "enabled": false, "requests_per_minute": 999 }
 }"#;
 
-    let src = FileSource::with_reader(
-        "config.json",
-        FileFormat::Json,
-        true,
-        |_| Ok(json.to_string()),
-    );
+    let src = FileSource::with_reader("config.json", FileFormat::Json, true, |_| {
+        Ok(json.to_string())
+    });
 
     let config: AppConfig = ConfigLoader::new()
         .add_source(Box::new(src))
