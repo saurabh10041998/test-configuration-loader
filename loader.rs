@@ -56,9 +56,9 @@ impl ConfigLoader {
         let mut merged = ConfigValue::empty_table();
 
         for source in &self.sources {
-            let layer = source.load().map_err(|e| {
-                ConfigError::SourceError(source.name().to_string(), e.to_string())
-            })?;
+            let layer = source
+                .load()
+                .map_err(|e| ConfigError::SourceError(source.name().to_string(), e.to_string()))?;
             merged.merge(layer);
         }
 
@@ -135,10 +135,8 @@ mod tests {
             ("host", ConfigValue::String("localhost".into())),
             ("port", ConfigValue::Integer(3000)),
         ]));
-        let overrides = DefaultSource::from_map(HashMap::from([(
-            "port",
-            ConfigValue::Integer(9090),
-        )]));
+        let overrides =
+            DefaultSource::from_map(HashMap::from([("port", ConfigValue::Integer(9090))]));
 
         let config: TestConfig = ConfigLoader::new()
             .add_source(Box::new(defaults))
@@ -202,13 +200,9 @@ mod tests {
 
     #[test]
     fn test_missing_required_field() {
-        let src = DefaultSource::from_map(HashMap::from([(
-            "debug",
-            ConfigValue::Bool(true),
-        )]));
+        let src = DefaultSource::from_map(HashMap::from([("debug", ConfigValue::Bool(true))]));
 
-        let result: Result<TestConfig, _> =
-            ConfigLoader::new().add_source(Box::new(src)).load();
+        let result: Result<TestConfig, _> = ConfigLoader::new().add_source(Box::new(src)).load();
 
         assert!(result.is_err());
     }
@@ -249,10 +243,8 @@ mod tests {
     #[test]
     fn test_reversed_precedence() {
         // Here we add "overrides" first so defaults actually win.
-        let overrides = DefaultSource::from_map(HashMap::from([(
-            "port",
-            ConfigValue::Integer(9090),
-        )]));
+        let overrides =
+            DefaultSource::from_map(HashMap::from([("port", ConfigValue::Integer(9090))]));
         let defaults = DefaultSource::from_map(HashMap::from([
             ("host", ConfigValue::String("localhost".into())),
             ("port", ConfigValue::Integer(3000)),
@@ -260,7 +252,7 @@ mod tests {
 
         let config: TestConfig = ConfigLoader::new()
             .add_source(Box::new(overrides)) // lower precedence
-            .add_source(Box::new(defaults))  // higher precedence (added last)
+            .add_source(Box::new(defaults)) // higher precedence (added last)
             .load()
             .expect("load");
 

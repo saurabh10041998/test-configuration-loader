@@ -20,10 +20,7 @@ impl DefaultSource {
 
     /// Convenience: build from a `HashMap<&str, ConfigValue>`.
     pub fn from_map(map: HashMap<&str, ConfigValue>) -> Self {
-        let table = map
-            .into_iter()
-            .map(|(k, v)| (k.to_string(), v))
-            .collect();
+        let table = map.into_iter().map(|(k, v)| (k.to_string(), v)).collect();
         Self {
             values: ConfigValue::Table(table),
         }
@@ -261,23 +258,18 @@ fn parse_content(
 ) -> Result<ConfigValue, ConfigError> {
     match format {
         FileFormat::Toml => {
-            let table: toml::Value = toml::from_str(content).map_err(|e| {
-                ConfigError::ParseError(source_name.to_string(), e.to_string())
-            })?;
+            let table: toml::Value = toml::from_str(content)
+                .map_err(|e| ConfigError::ParseError(source_name.to_string(), e.to_string()))?;
             Ok(toml_to_config_value(&table))
         }
         FileFormat::Yaml => {
-            let yaml: serde_yaml::Value =
-                serde_yaml::from_str(content).map_err(|e| {
-                    ConfigError::ParseError(source_name.to_string(), e.to_string())
-                })?;
+            let yaml: serde_yaml::Value = serde_yaml::from_str(content)
+                .map_err(|e| ConfigError::ParseError(source_name.to_string(), e.to_string()))?;
             Ok(yaml_to_config_value(&yaml))
         }
         FileFormat::Json => {
-            let json: serde_json::Value =
-                serde_json::from_str(content).map_err(|e| {
-                    ConfigError::ParseError(source_name.to_string(), e.to_string())
-                })?;
+            let json: serde_json::Value = serde_json::from_str(content)
+                .map_err(|e| ConfigError::ParseError(source_name.to_string(), e.to_string()))?;
             Ok(json_to_config_value(&json))
         }
     }
@@ -426,12 +418,9 @@ port = 8080
 url = "postgres://localhost/mydb"
 "#;
 
-        let src = FileSource::with_reader(
-            "config.toml",
-            FileFormat::Toml,
-            true,
-            |_| Ok(toml_content.to_string()),
-        );
+        let src = FileSource::with_reader("config.toml", FileFormat::Toml, true, |_| {
+            Ok(toml_content.to_string())
+        });
         let val = src.load().expect("parse toml");
         assert_eq!(
             val.get_path("server.host"),
@@ -448,12 +437,9 @@ url = "postgres://localhost/mydb"
     #[test]
     fn test_file_source_json() {
         let json_content = r#"{"server": {"host": "0.0.0.0", "port": 3000}}"#;
-        let src = FileSource::with_reader(
-            "config.json",
-            FileFormat::Json,
-            true,
-            |_| Ok(json_content.to_string()),
-        );
+        let src = FileSource::with_reader("config.json", FileFormat::Json, true, |_| {
+            Ok(json_content.to_string())
+        });
         let val = src.load().expect("parse json");
         assert_eq!(
             val.get_path("server.port"),
@@ -466,12 +452,9 @@ url = "postgres://localhost/mydb"
     #[test]
     fn test_file_source_yaml() {
         let yaml_content = "server:\n  host: 10.0.0.1\n  port: 5000\n";
-        let src = FileSource::with_reader(
-            "config.yaml",
-            FileFormat::Yaml,
-            true,
-            |_| Ok(yaml_content.to_string()),
-        );
+        let src = FileSource::with_reader("config.yaml", FileFormat::Yaml, true, |_| {
+            Ok(yaml_content.to_string())
+        });
         let val = src.load().expect("parse yaml");
         assert_eq!(
             val.get_path("server.host"),

@@ -175,24 +175,15 @@ mod tests {
             ("b".into(), ConfigValue::String("2".into())),
             (
                 "nested".into(),
-                ConfigValue::Table(HashMap::from([(
-                    "y".into(),
-                    ConfigValue::Integer(99),
-                )])),
+                ConfigValue::Table(HashMap::from([("y".into(), ConfigValue::Integer(99))])),
             ),
         ]));
 
         base.merge(overlay);
 
         // "a" preserved, "b" added
-        assert_eq!(
-            base.get_path("a"),
-            Some(&ConfigValue::String("1".into()))
-        );
-        assert_eq!(
-            base.get_path("b"),
-            Some(&ConfigValue::String("2".into()))
-        );
+        assert_eq!(base.get_path("a"), Some(&ConfigValue::String("1".into())));
+        assert_eq!(base.get_path("b"), Some(&ConfigValue::String("2".into())));
         // nested.x preserved, nested.y overridden
         assert_eq!(base.get_path("nested.x"), Some(&ConfigValue::Integer(10)));
         assert_eq!(base.get_path("nested.y"), Some(&ConfigValue::Integer(99)));

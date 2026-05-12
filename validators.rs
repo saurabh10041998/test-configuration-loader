@@ -63,7 +63,10 @@ impl ConfigValidator for RangeValidator {
                 if n < self.min || n > self.max {
                     return Err(ConfigError::ValidationFailed(
                         self.field.clone(),
-                        format!("value {n} is outside allowed range [{}, {}]", self.min, self.max),
+                        format!(
+                            "value {n} is outside allowed range [{}, {}]",
+                            self.min, self.max
+                        ),
                     ));
                 }
             }
@@ -148,10 +151,7 @@ mod tests {
     #[test]
     fn test_fn_validator() {
         let v = FnValidator::new(|cfg| {
-            let host = cfg
-                .get_path("host")
-                .and_then(|v| v.as_str())
-                .unwrap_or("");
+            let host = cfg.get_path("host").and_then(|v| v.as_str()).unwrap_or("");
             if host.is_empty() {
                 Err(ConfigError::ValidationFailed(
                     "host".into(),
