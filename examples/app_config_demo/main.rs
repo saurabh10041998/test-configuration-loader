@@ -1,5 +1,7 @@
+mod app_config;
+
+use app_config::AppConfig;
 use std::collections::HashMap;
-use unified_config_loader::app_config::AppConfig;
 use unified_config_loader::prelude::*;
 use unified_config_loader::sources::{DefaultSource, EnvSource, FileFormat, FileSource};
 use unified_config_loader::validators::{FnValidator, RangeValidator, RequiredFieldsValidator};

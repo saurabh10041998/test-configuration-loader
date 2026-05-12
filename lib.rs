@@ -31,7 +31,6 @@
 //! }
 //! ```
 
-pub mod app_config;
 pub mod error;
 pub mod loader;
 pub mod sources;
