@@ -377,12 +377,10 @@ mod tests {
             ),
             (
                 "auth".into(),
-                ConfigValue::Table(HashMap::from([
-                    (
-                        "jwt_secret".into(),
-                        ConfigValue::String("super-secret-key-256-bit".into()),
-                    ),
-                ])),
+                ConfigValue::Table(HashMap::from([(
+                    "jwt_secret".into(),
+                    ConfigValue::String("super-secret-key-256-bit".into()),
+                )])),
             ),
             (
                 "mail".into(),
@@ -432,10 +430,7 @@ mod tests {
     fn test_missing_required_http_host() {
         let tree = ConfigValue::Table(HashMap::from([(
             "http".into(),
-            ConfigValue::Table(HashMap::from([(
-                "port".into(),
-                ConfigValue::Integer(8080),
-            )])),
+            ConfigValue::Table(HashMap::from([("port".into(), ConfigValue::Integer(8080))])),
         )]));
 
         let result = AppConfig::from_config_value(&tree);

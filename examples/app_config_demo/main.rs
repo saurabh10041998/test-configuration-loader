@@ -26,7 +26,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         (
             "auth".into(),
             ConfigValue::Table(HashMap::from([
-                ("jwt_issuer".into(), ConfigValue::String("unified-app".into())),
+                (
+                    "jwt_issuer".into(),
+                    ConfigValue::String("unified-app".into()),
+                ),
                 ("token_expiry_secs".into(), ConfigValue::Integer(3600)),
                 (
                     "refresh_token_expiry_secs".into(),
