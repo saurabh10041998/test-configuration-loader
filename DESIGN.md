@@ -3,38 +3,42 @@
 ## Architecture Overview
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│                        ConfigLoader                              │
-│                                                                  │
-│  sources: Vec<Box<dyn ConfigSource>>    (plugin list, ordered)   │
-│  validators: Vec<Box<dyn ConfigValidator>>  (hook list)          │
-│                                                                  │
-│  load_raw() → merge all sources → ConfigValue tree               │
-│  load::<T>() → merge → validate → FromConfigValue → T           │
-└──────────────────────────────────────────────────────────────────┘
++------------------------------------------------------------------+
+|                        ConfigLoader                              |
+|                                                                  |
+|  sources:    Vec<Box<dyn ConfigSource>>   (plugin list, ordered) |
+|  validators: Vec<Box<dyn ConfigValidator>>  (hook list)          |
+|                                                                  |
+|  load_raw()  --> merge all sources --> ConfigValue tree          |
+|  load::<T>() --> merge --> validate --> FromConfigValue --> T    |
++------------------------------------------------------------------+
 
-        ┌────────────┐   ┌────────────┐   ┌────────────┐   ┌────────────┐
-        │DefaultSource│   │ EnvSource  │   │ FileSource │   │ Your Plugin│
-        └─────┬──────┘   └─────┬──────┘   └─────┬──────┘   └─────┬──────┘
-              │                │                 │                 │
-              └────────────────┴─────────────────┴─────────────────┘
+  +--------------+  +--------------+  +--------------+  +--------------+
+  |DefaultSource |  |  EnvSource   |  |  FileSource  |  | Your Plugin  |
+  +------+-------+  +------+-------+  +------+-------+  +------+-------+
+         |                 |                 |                  |
+         +-----------------+-----------------+------------------+
+                                    |
                               ConfigValue (tree)
-                                    │
-                          ┌─────────▼──────────┐
-                          │   Deep Merge       │
-                          │ (last source wins) │
-                          └─────────┬──────────┘
-                                    │
-                          ┌─────────▼──────────┐
-                          │   Validators       │
-                          │ (all run, errors   │
-                          │  collected)        │
-                          └─────────┬──────────┘
-                                    │
-                          ┌─────────▼──────────┐
-                          │  FromConfigValue   │
-                          │  → AppConfig       │
-                          └────────────────────┘
+                                    |
+                                    v
+                         +--------------------+
+                         |    Deep Merge      |
+                         | (last source wins) |
+                         +--------------------+
+                                    |
+                                    v
+                         +--------------------+
+                         |    Validators      |
+                         | (all run, errors   |
+                         |  collected)        |
+                         +--------------------+
+                                    |
+                                    v
+                         +--------------------+
+                         |  FromConfigValue   |
+                         |  --> AppConfig     |
+                         +--------------------+
 ```
 
 ## Application Config Domain
